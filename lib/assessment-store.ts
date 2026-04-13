@@ -9,6 +9,73 @@ import type {
 import { calculateResilienceLevel } from './assessment-types';
 import { calculateAssessmentResult } from './assessment-questions';
 
+// ── Demo seed data ────────────────────────────────────────────────────────────
+
+const demoAnswersT0: Record<string, number> = {
+  A1: 3, A2: 3, A3: 1, A4: 1, A5: 1,
+  B1: 1, B2: 3, B3: 1,
+  C1: 5, C2: 3, C3: 3,
+  D1: 3, D2: 0, D3: 0, D4: 3,
+  E1: 3, E2: 3, E3: 3,
+  F1: 0, F2: 0,
+};
+
+const demoAnswersT1: Record<string, number> = {
+  A1: 3, A2: 3, A3: 1, A4: 1, A5: 1,
+  B1: 3, B2: 3, B3: 3,
+  C1: 5, C2: 3, C3: 3,
+  D1: 3, D2: 3, D3: 3, D4: 3,
+  E1: 3, E2: 3, E3: 5,
+  F1: 3, F2: 3,
+};
+
+const t0Result = calculateAssessmentResult(demoAnswersT0);
+const t1Result = calculateAssessmentResult(demoAnswersT1);
+
+const DEMO_ASSESSMENT_T0: AssessmentResult = {
+  id: 'demo-assessment-t0',
+  date: '2025-01-15T09:00:00.000Z',
+  sessionLabel: 'T0',
+  ...t0Result,
+  level: calculateResilienceLevel(t0Result.totalScore),
+  answers: demoAnswersT0,
+  fieldNotes: { A1: '25000', A3: '5000' },
+  interventionPriorities: {
+    selected: ['心理支持', '儲蓄培養', '金融教育'],
+    otherChecked: false,
+    other: '',
+  },
+};
+
+const DEMO_ASSESSMENT_T1: AssessmentResult = {
+  id: 'demo-assessment-t1',
+  date: '2025-04-10T10:30:00.000Z',
+  sessionLabel: 'T1',
+  ...t1Result,
+  level: calculateResilienceLevel(t1Result.totalScore),
+  answers: demoAnswersT1,
+  fieldNotes: { A1: '26000', A3: '12000' },
+  interventionPriorities: {
+    selected: ['儲蓄培養', '金融教育', '就業支持'],
+    otherChecked: false,
+    other: '',
+  },
+};
+
+const DEMO_CASE: CaseProfile = {
+  id: 'demo-case-001',
+  caseNumber: 'D-2025-001',
+  name: '王小明',
+  birthYear: '1985',
+  gender: 'male',
+  contact: '0912-345-678',
+  familySize: 4,
+  childrenCount: 2,
+  notes: '單薪家庭，配偶為主要照顧者，育有兩名國小子女。因工作不穩定導致財務壓力較大，有意願參與財務輔導。',
+  createdAt: '2025-01-15T08:30:00.000Z',
+  assessments: [DEMO_ASSESSMENT_T0, DEMO_ASSESSMENT_T1],
+};
+
 interface PublicAssessmentState {
   currentStep: number;
   userProfile: UserProfile | null;
@@ -89,7 +156,7 @@ interface SocialWorkerState {
 export const useSocialWorkerStore = create<SocialWorkerState>()(
   persist(
     (set, get) => ({
-      cases: [],
+      cases: [DEMO_CASE],
       currentCase: null,
       currentAnswers: {},
       addCase: (profile) => {
@@ -231,6 +298,14 @@ export const useSocialWorkerStore = create<SocialWorkerState>()(
     }),
     {
       name: 'social-worker-storage',
+      merge: (persisted, current) => {
+        const stored = persisted as Partial<SocialWorkerState>;
+        // If localStorage has no cases yet, keep the demo case from initial state
+        if (!stored.cases || stored.cases.length === 0) {
+          return { ...current, ...stored, cases: current.cases };
+        }
+        return { ...current, ...stored };
+      },
     }
   )
 );
