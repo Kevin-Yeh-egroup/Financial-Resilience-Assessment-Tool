@@ -38,24 +38,30 @@ export interface AssessmentResult {
   dimensionPercentages: Record<Dimension, number>;
   level: ResilienceLevel;
   answers: Record<string, number>;
+  fieldNotes?: Record<string, string>;
+  interventionPriorities?: {
+    selected: string[];
+    otherChecked: boolean;
+    other: string;
+  };
 }
 
 export type ResilienceLevel = 'stable' | 'needsAdjustment' | 'atRisk';
 
 export const RESILIENCE_LEVELS: Record<ResilienceLevel, { label: string; description: string; color: string }> = {
   stable: {
-    label: '穩定中',
-    description: '您的家庭財務狀況相對穩定，持續保持良好習慣',
+    label: '穩定',
+    description: '財務韌性良好，持續保持良好習慣',
     color: 'text-success',
   },
   needsAdjustment: {
-    label: '需要調整',
-    description: '部分財務面向可以加強，建議尋求專業諮詢',
+    label: '需注意',
+    description: '接近韌性，部分財務面向可以加強，建議尋求專業諮詢',
     color: 'text-warning',
   },
   atRisk: {
     label: '有風險',
-    description: '建議盡快尋求專業協助，改善財務狀況',
+    description: '財務脆弱或極度脆弱，建議盡快尋求專業協助',
     color: 'text-destructive',
   },
 };
@@ -135,8 +141,8 @@ export const LOCATIONS = [
 
 // 計算韌性等級
 export function calculateResilienceLevel(score: number): ResilienceLevel {
-  if (score >= 70) return 'stable';
-  if (score >= 40) return 'needsAdjustment';
+  if (score >= 75) return 'stable';
+  if (score >= 60) return 'needsAdjustment';
   return 'atRisk';
 }
 

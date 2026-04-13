@@ -168,7 +168,7 @@ export default function SocialWorkerDashboard() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">個案管理</h1>
+          <h1 className="text-2xl font-bold text-foreground">家庭財務韌性評估管理</h1>
           <p className="text-muted-foreground">管理個案資料與評估紀錄</p>
         </div>
         <Link href="/social-worker/new-case">

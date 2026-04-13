@@ -63,7 +63,6 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
   const [selectedAssessments, setSelectedAssessments] = useState<Set<string>>(new Set());
   const [deleteAssessmentTarget, setDeleteAssessmentTarget] = useState<string | null>(null);
   const [showBatchAssessmentConfirm, setShowBatchAssessmentConfirm] = useState(false);
-
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     caseNumber: '',
@@ -387,66 +386,36 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
             </Card>
           )}
 
-          {/* Intervention Priorities */}
-          {(() => {
-            const priorities = caseData.interventionPriorities ?? { selected: [], otherChecked: false, other: '' };
-            const toggleOption = (opt: string) => {
-              const next = priorities.selected.includes(opt)
-                ? priorities.selected.filter((s) => s !== opt)
-                : [...priorities.selected, opt];
-              updateCase(id, { interventionPriorities: { ...priorities, selected: next } });
-            };
-            const toggleOtherChecked = () => {
-              updateCase(id, { interventionPriorities: { ...priorities, otherChecked: !priorities.otherChecked } });
-            };
-            const setOther = (val: string) => {
-              updateCase(id, {
-                interventionPriorities: {
-                  ...priorities,
-                  other: val,
-                  otherChecked: val.trim().length > 0 ? true : priorities.otherChecked,
-                },
-              });
-            };
+          {/* Intervention Priorities — read-only, from latest assessment */}
+          {latestAssessment && (() => {
+            const priorities = latestAssessment.interventionPriorities;
+            const hasAny = priorities && (priorities.selected.length > 0 || (priorities.otherChecked && priorities.other.trim()));
+            const latestIndex = caseData.assessments.length - 1;
             return (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base">優先介入面向識別</CardTitle>
+                  <CardDescription className="text-xs">
+                    來自最新評估（T{latestIndex}）・請至評估紀錄中填寫
+                  </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex flex-wrap gap-x-4 gap-y-2.5">
-                    {INTERVENTION_OPTIONS.map((opt) => (
-                      <div key={opt} className="flex items-center gap-2">
-                        <Checkbox
-                          id={`intervention-${opt}`}
-                          checked={priorities.selected.includes(opt)}
-                          onCheckedChange={() => toggleOption(opt)}
-                        />
-                        <Label
-                          htmlFor={`intervention-${opt}`}
-                          className="text-sm font-normal cursor-pointer"
-                        >
+                <CardContent>
+                  {hasAny ? (
+                    <div className="flex flex-wrap gap-2">
+                      {priorities!.selected.map((opt) => (
+                        <Badge key={opt} variant="secondary" className="text-xs font-normal">
                           {opt}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-2 pt-1">
-                    <Checkbox
-                      id="intervention-other-check"
-                      checked={priorities.otherChecked}
-                      onCheckedChange={toggleOtherChecked}
-                    />
-                    <Label htmlFor="intervention-other-check" className="text-sm font-normal shrink-0">
-                      其他：
-                    </Label>
-                    <Input
-                      value={priorities.other}
-                      onChange={(e) => setOther(e.target.value)}
-                      placeholder="請填寫"
-                      className="h-8 text-sm"
-                    />
-                  </div>
+                        </Badge>
+                      ))}
+                      {priorities!.otherChecked && priorities!.other.trim() && (
+                        <Badge variant="secondary" className="text-xs font-normal">
+                          其他：{priorities!.other}
+                        </Badge>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">尚未填寫</p>
+                  )}
                 </CardContent>
               </Card>
             );
@@ -741,6 +710,15 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
                           <TableCell>{getLevelBadge(assessment.level)}</TableCell>
                           <TableCell className="text-right">
                             <div className="flex items-center justify-end gap-1">
+                              <Link
+                                href={`/social-worker/case/${id}/assessment/${assessment.id}`}
+                                target="_blank"
+                              >
+                                <Button variant="ghost" size="sm">
+                                  <ExternalLink className="w-4 h-4 mr-1" />
+                                  查看
+                                </Button>
+                              </Link>
                               <Button variant="ghost" size="sm">
                                 <Download className="w-4 h-4 mr-1" />
                                 匯出

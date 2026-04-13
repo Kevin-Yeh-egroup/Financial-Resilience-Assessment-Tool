@@ -6,7 +6,7 @@ export const ASSESSMENT_QUESTIONS: Question[] = [
   {
     id: 'A1',
     dimension: 'A',
-    text: '您家庭每個月的總收入（稅後）大約是多少？',
+    text: '您家庭每個月的總收入大約是多少？',
     options: [
       { value: 5, label: '超過 NT$50,000' },
       { value: 4, label: 'NT$30,000 至 50,000' },
@@ -20,8 +20,8 @@ export const ASSESSMENT_QUESTIONS: Question[] = [
     dimension: 'A',
     text: '您家庭的主要收入來源屬於哪一種？',
     options: [
-      { value: 5, label: '固定月薪（穩定）' },
-      { value: 3, label: '固定工作但收入不穩定（如計件、分紅）' },
+      { value: 5, label: '穩定月薪' },
+      { value: 3, label: '不穩定但固定工作' },
       { value: 1, label: '臨時工作或打零工' },
       { value: 0, label: '目前沒有收入' },
     ],
@@ -42,10 +42,10 @@ export const ASSESSMENT_QUESTIONS: Question[] = [
     dimension: 'A',
     text: '您目前的債務狀況是？',
     options: [
-      { value: 5, label: '沒有任何債務' },
-      { value: 3, label: '有貸款但能正常繳付（如房貸、車貸）' },
-      { value: 1, label: '債務有些壓力，偶爾繳不出來' },
-      { value: 0, label: '債務嚴重，無力償還或已逾期' },
+      { value: 5, label: '無債務' },
+      { value: 3, label: '健康債務' },
+      { value: 1, label: '警戒債務' },
+      { value: 0, label: '危險債務' },
     ],
   },
   {
@@ -53,10 +53,10 @@ export const ASSESSMENT_QUESTIONS: Question[] = [
     dimension: 'A',
     text: '除了存款，您家庭還有哪些資產？',
     options: [
-      { value: 5, label: '有多項資產（如房產、車輛、投資）' },
-      { value: 3, label: '有部分資產（如一輛車或少量投資）' },
-      { value: 1, label: '只有基本生活用品' },
-      { value: 0, label: '沒有其他資產' },
+      { value: 5, label: '有多項資產' },
+      { value: 3, label: '有部分資產' },
+      { value: 1, label: '僅基本資產' },
+      { value: 0, label: '無' },
     ],
   },
 
@@ -80,7 +80,7 @@ export const ASSESSMENT_QUESTIONS: Question[] = [
       { value: 5, label: '動用自己的儲蓄' },
       { value: 3, label: '請親友借助或借款' },
       { value: 2, label: '向銀行或信用合作社貸款' },
-      { value: 0, label: '借地下錢莊、當舖或信用卡預借現金等高成本管道' },
+      { value: 0, label: '借地下錢莊、當鋪等高成本管道' },
     ],
   },
   {
@@ -88,8 +88,8 @@ export const ASSESSMENT_QUESTIONS: Question[] = [
     dimension: 'B',
     text: '您家庭目前有哪些保險保障？',
     options: [
-      { value: 5, label: '有完整保障（含壽險、意外險、醫療險等）' },
-      { value: 3, label: '有基本保障（如職災保險或簡單醫療險）' },
+      { value: 5, label: '有完整保障' },
+      { value: 3, label: '有基本保障' },
       { value: 1, label: '只有全民健保' },
       { value: 0, label: '沒有任何保險' },
     ],
@@ -197,7 +197,7 @@ export const ASSESSMENT_QUESTIONS: Question[] = [
     dimension: 'E',
     text: '您對政府或社福單位提供的資源（如補助、急難救助）的了解程度？',
     options: [
-      { value: 5, label: '熟悉，知道如何申請並已在使用' },
+      { value: 5, label: '熟悉，知道如何申請並可運用' },
       { value: 3, label: '普通，聽說過但不確定如何申請' },
       { value: 0, label: '不熟悉，幾乎不知道有哪些資源' },
     ],

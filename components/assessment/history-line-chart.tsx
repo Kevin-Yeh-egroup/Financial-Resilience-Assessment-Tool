@@ -19,7 +19,7 @@ interface HistoryLineChartProps {
 
 export function HistoryLineChart({ assessments, height = 250 }: HistoryLineChartProps) {
   const chartData = assessments.map((assessment, index) => ({
-    name: assessment.sessionLabel ?? `T${index}`,
+    name: `T${index}`,
     date: new Date(assessment.date).toLocaleDateString('zh-TW', {
       year: 'numeric',
       month: 'short',

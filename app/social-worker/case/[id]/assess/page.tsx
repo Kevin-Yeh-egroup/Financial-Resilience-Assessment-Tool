@@ -21,10 +21,6 @@ export default function CaseAssessmentPage({ params }: { params: Promise<{ id: s
 
   const caseData = cases.find((c) => c.id === id);
 
-  // 場次選擇：預設為下一個新場次（T0、T1、T2...）
-  const defaultSession = `T${caseData?.assessments.length ?? 0}`;
-  const [selectedSession, setSelectedSession] = useState<string>(defaultSession);
-
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isCalculating, setIsCalculating] = useState(false);
   const [calcProgress, setCalcProgress] = useState(0);
@@ -57,7 +53,8 @@ export default function CaseAssessmentPage({ params }: { params: Promise<{ id: s
       setCalcProgress(Math.min((step / steps) * 100, 100));
       if (step >= steps) {
         clearInterval(progressTimer);
-        const result = submitAssessment(id, selectedSession);
+        const sessionLabel = `T${caseData?.assessments.length ?? 0}`;
+        const result = submitAssessment(id, sessionLabel);
         if (result) {
           router.push(`/social-worker/case/${id}`);
         }
@@ -126,12 +123,6 @@ export default function CaseAssessmentPage({ params }: { params: Promise<{ id: s
     );
   }
 
-  const assessmentNumber = caseData.assessments.length;
-
-  // 可選場次：已有的 + 下一個新場次，最少顯示到 T3
-  const maxSession = Math.max(assessmentNumber, 3);
-  const sessionOptions = Array.from({ length: maxSession + 1 }, (_, i) => `T${i}`);
-  const usedSessions = new Set(caseData.assessments.map((a) => a.sessionLabel ?? `T${caseData.assessments.indexOf(a)}`));
 
   if (isCalculating) {
     return (
@@ -198,50 +189,6 @@ export default function CaseAssessmentPage({ params }: { params: Promise<{ id: s
                   個案編號：{caseData.caseNumber}
                 </p>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Session Selector */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">評估場次</CardTitle>
-            <CardDescription>請選擇本次評估所屬場次</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-3">
-              {sessionOptions.map((session) => {
-                const isUsed = usedSessions.has(session);
-                const isSelected = selectedSession === session;
-                return (
-                  <button
-                    key={session}
-                    type="button"
-                    onClick={() => setSelectedSession(session)}
-                    className={`relative flex items-center gap-2 px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
-                      isSelected
-                        ? 'border-primary bg-primary/8 text-primary'
-                        : 'border-border bg-background text-muted-foreground hover:border-primary/50 hover:text-foreground'
-                    }`}
-                  >
-                    <span
-                      className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                        isSelected ? 'border-primary bg-primary' : 'border-muted-foreground/40'
-                      }`}
-                    >
-                      {isSelected && (
-                        <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 10 10">
-                          <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      )}
-                    </span>
-                    {session}
-                    {isUsed && !isSelected && (
-                      <span className="text-xs text-muted-foreground/60">（已有）</span>
-                    )}
-                  </button>
-                );
-              })}
             </div>
           </CardContent>
         </Card>

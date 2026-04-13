@@ -77,6 +77,13 @@ interface SocialWorkerState {
   deleteAssessment: (caseId: string, assessmentId: string) => void;
   deleteManyAssessments: (caseId: string, assessmentIds: string[]) => void;
   deleteManyCases: (ids: string[]) => void;
+  updateAssessmentFieldNotes: (caseId: string, assessmentId: string, notes: Record<string, string>) => void;
+  updateAssessment: (caseId: string, assessmentId: string, answers: Record<string, number>) => void;
+  updateAssessmentInterventionPriorities: (
+    caseId: string,
+    assessmentId: string,
+    priorities: { selected: string[]; otherChecked: boolean; other: string }
+  ) => void;
 }
 
 export const useSocialWorkerStore = create<SocialWorkerState>()(
@@ -166,6 +173,60 @@ export const useSocialWorkerStore = create<SocialWorkerState>()(
       deleteManyCases: (ids) =>
         set((state) => ({
           cases: state.cases.filter((c) => !ids.includes(c.id)),
+        })),
+      updateAssessment: (caseId, assessmentId, answers) => {
+        const { totalScore, dimensionScores, dimensionPercentages } = calculateAssessmentResult(answers);
+        set((state) => ({
+          cases: state.cases.map((c) =>
+            c.id === caseId
+              ? {
+                  ...c,
+                  assessments: c.assessments.map((a) =>
+                    a.id === assessmentId
+                      ? {
+                          ...a,
+                          answers,
+                          totalScore,
+                          dimensionScores,
+                          dimensionPercentages,
+                          level: calculateResilienceLevel(totalScore),
+                        }
+                      : a
+                  ),
+                }
+              : c
+          ),
+        }));
+      },
+      updateAssessmentInterventionPriorities: (caseId, assessmentId, priorities) =>
+        set((state) => ({
+          cases: state.cases.map((c) =>
+            c.id === caseId
+              ? {
+                  ...c,
+                  assessments: c.assessments.map((a) =>
+                    a.id === assessmentId
+                      ? { ...a, interventionPriorities: priorities }
+                      : a
+                  ),
+                }
+              : c
+          ),
+        })),
+      updateAssessmentFieldNotes: (caseId, assessmentId, notes) =>
+        set((state) => ({
+          cases: state.cases.map((c) =>
+            c.id === caseId
+              ? {
+                  ...c,
+                  assessments: c.assessments.map((a) =>
+                    a.id === assessmentId
+                      ? { ...a, fieldNotes: { ...a.fieldNotes, ...notes } }
+                      : a
+                  ),
+                }
+              : c
+          ),
         })),
     }),
     {
