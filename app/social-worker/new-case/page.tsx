@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ChevronLeft, UserPlus, Save } from 'lucide-react';
 import Link from 'next/link';
 
@@ -89,44 +90,49 @@ export default function NewCasePage() {
             {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
           </div>
 
-          {/* Birth Year & Gender */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>出生年 *</Label>
-              <Select
-                value={formData.birthYear}
-                onValueChange={(value) => setFormData({ ...formData, birthYear: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="選擇出生年" />
-                </SelectTrigger>
-                <SelectContent>
-                  {birthYears.map((year) => (
-                    <SelectItem key={year} value={year.toString()}>
-                      {year} 年
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.birthYear && <p className="text-sm text-destructive">{errors.birthYear}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label>性別 *</Label>
-              <Select
-                value={formData.gender}
-                onValueChange={(value) => setFormData({ ...formData, gender: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="選擇性別" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="male">男</SelectItem>
-                  <SelectItem value="female">女</SelectItem>
-                  <SelectItem value="other">其他</SelectItem>
-                </SelectContent>
-              </Select>
-              {errors.gender && <p className="text-sm text-destructive">{errors.gender}</p>}
-            </div>
+          {/* Birth Year */}
+          <div className="space-y-2">
+            <Label>出生年 *</Label>
+            <Select
+              value={formData.birthYear}
+              onValueChange={(value) => setFormData({ ...formData, birthYear: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="選擇出生年" />
+              </SelectTrigger>
+              <SelectContent>
+                {birthYears.map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year} 年
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.birthYear && <p className="text-sm text-destructive">{errors.birthYear}</p>}
+          </div>
+
+          {/* Household Head Gender */}
+          <div className="space-y-3">
+            <Label>戶長性別 *</Label>
+            <RadioGroup
+              value={formData.gender}
+              onValueChange={(value) => setFormData({ ...formData, gender: value })}
+              className="flex flex-row gap-6"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="male" id="gender-male" />
+                <Label htmlFor="gender-male" className="font-normal cursor-pointer">男</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="female" id="gender-female" />
+                <Label htmlFor="gender-female" className="font-normal cursor-pointer">女</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="other" id="gender-other" />
+                <Label htmlFor="gender-other" className="font-normal cursor-pointer">其他</Label>
+              </div>
+            </RadioGroup>
+            {errors.gender && <p className="text-sm text-destructive">{errors.gender}</p>}
           </div>
 
           {/* Contact */}

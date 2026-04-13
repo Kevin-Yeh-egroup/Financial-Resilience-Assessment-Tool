@@ -71,9 +71,12 @@ interface SocialWorkerState {
   deleteCase: (id: string) => void;
   setCurrentCase: (caseProfile: CaseProfile | null) => void;
   setCurrentAnswer: (questionId: string, value: number) => void;
-  submitAssessment: (caseId: string) => AssessmentResult | null;
+  submitAssessment: (caseId: string, sessionLabel: string) => AssessmentResult | null;
   resetCurrentAnswers: () => void;
   getCaseById: (id: string) => CaseProfile | undefined;
+  deleteAssessment: (caseId: string, assessmentId: string) => void;
+  deleteManyAssessments: (caseId: string, assessmentIds: string[]) => void;
+  deleteManyCases: (ids: string[]) => void;
 }
 
 export const useSocialWorkerStore = create<SocialWorkerState>()(
@@ -110,17 +113,17 @@ export const useSocialWorkerStore = create<SocialWorkerState>()(
         set((state) => ({
           currentAnswers: { ...state.currentAnswers, [questionId]: value },
         })),
-      submitAssessment: (caseId) => {
+      submitAssessment: (caseId, sessionLabel) => {
         const { currentAnswers, cases } = get();
         const { totalScore, dimensionScores, dimensionPercentages } = calculateAssessmentResult(currentAnswers);
         
         const targetCase = cases.find((c) => c.id === caseId);
         if (!targetCase) return null;
 
-        const assessmentNumber = targetCase.assessments.length;
         const result: AssessmentResult = {
-          id: `T${assessmentNumber}-${Date.now()}`,
+          id: `${sessionLabel}-${Date.now()}`,
           date: new Date().toISOString(),
+          sessionLabel,
           totalScore,
           dimensionScores,
           dimensionPercentages,
@@ -144,6 +147,26 @@ export const useSocialWorkerStore = create<SocialWorkerState>()(
       },
       resetCurrentAnswers: () => set({ currentAnswers: {} }),
       getCaseById: (id) => get().cases.find((c) => c.id === id),
+      deleteAssessment: (caseId, assessmentId) =>
+        set((state) => ({
+          cases: state.cases.map((c) =>
+            c.id === caseId
+              ? { ...c, assessments: c.assessments.filter((a) => a.id !== assessmentId) }
+              : c
+          ),
+        })),
+      deleteManyAssessments: (caseId, assessmentIds) =>
+        set((state) => ({
+          cases: state.cases.map((c) =>
+            c.id === caseId
+              ? { ...c, assessments: c.assessments.filter((a) => !assessmentIds.includes(a.id)) }
+              : c
+          ),
+        })),
+      deleteManyCases: (ids) =>
+        set((state) => ({
+          cases: state.cases.filter((c) => !ids.includes(c.id)),
+        })),
     }),
     {
       name: 'social-worker-storage',

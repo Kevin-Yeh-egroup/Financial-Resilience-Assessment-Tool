@@ -14,7 +14,7 @@ export default function SocialWorkerLayout({
             <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
               <Shield className="w-5 h-5 text-accent-foreground" />
             </div>
-            <span className="font-semibold text-foreground">社工個案管理系統</span>
+            <span className="font-semibold text-foreground">家庭財務韌性快速評估</span>
           </Link>
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             返回首頁

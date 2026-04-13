@@ -19,51 +19,52 @@ interface HistoryLineChartProps {
 
 export function HistoryLineChart({ assessments, height = 250 }: HistoryLineChartProps) {
   const chartData = assessments.map((assessment, index) => ({
-    name: `T${index}`,
+    name: assessment.sessionLabel ?? `T${index}`,
     date: new Date(assessment.date).toLocaleDateString('zh-TW', {
+      year: 'numeric',
       month: 'short',
       day: 'numeric',
     }),
     總分: assessment.totalScore,
-    收支管理: assessment.dimensionPercentages.A,
-    儲蓄準備: assessment.dimensionPercentages.B,
-    借貸管理: assessment.dimensionPercentages.C,
-    財務規劃: assessment.dimensionPercentages.D,
-    保險保障: assessment.dimensionPercentages.E,
-    支持系統: assessment.dimensionPercentages.F,
   }));
 
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+      <LineChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
         <XAxis
-          dataKey="date"
-          tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-          stroke="hsl(var(--border))"
+          dataKey="name"
+          tick={{ fill: '#6b7280', fontSize: 12 }}
+          stroke="#e5e7eb"
         />
         <YAxis
           domain={[0, 100]}
-          tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-          stroke="hsl(var(--border))"
+          tick={{ fill: '#6b7280', fontSize: 12 }}
+          stroke="#e5e7eb"
         />
         <Tooltip
           contentStyle={{
-            backgroundColor: 'hsl(var(--card))',
-            border: '1px solid hsl(var(--border))',
+            backgroundColor: '#ffffff',
+            border: '1px solid #e5e7eb',
             borderRadius: '8px',
             padding: '8px 12px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
           }}
-          labelStyle={{ color: 'hsl(var(--foreground))' }}
+          labelStyle={{ color: '#111827' }}
+          labelFormatter={(label) => {
+            const item = chartData.find((d) => d.name === label);
+            return item ? `${label}（${item.date}）` : label;
+          }}
+          formatter={(value: number) => [`${value} 分`, '總分']}
         />
-        <Legend wrapperStyle={{ fontSize: '12px' }} />
         <Line
           type="monotone"
           dataKey="總分"
-          stroke="hsl(var(--primary))"
-          strokeWidth={3}
-          dot={{ fill: 'hsl(var(--primary))', strokeWidth: 2 }}
-          activeDot={{ r: 6 }}
+          stroke="#4da6e0"
+          strokeWidth={2.5}
+          dot={{ fill: '#4da6e0', r: 5, strokeWidth: 2, stroke: '#ffffff' }}
+          activeDot={{ r: 7, stroke: '#4da6e0', strokeWidth: 2, fill: '#ffffff' }}
+          isAnimationActive={true}
         />
       </LineChart>
     </ResponsiveContainer>
