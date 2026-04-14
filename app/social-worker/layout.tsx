@@ -1,4 +1,4 @@
-import { Shield, User } from 'lucide-react';
+import { Shield, Users, ArrowLeftRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SocialWorkerLayout({
@@ -18,10 +18,12 @@ export default function SocialWorkerLayout({
           </Link>
           <Link
             href="/personal"
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground border border-border rounded-full px-3 py-1.5 transition-colors hover:bg-muted/50"
+            className="inline-flex items-center gap-1.5 text-sm border rounded-full px-3 py-1.5 transition-colors bg-accent/10 text-accent border-accent/20 hover:bg-accent/20"
+            title="切換至個人版"
           >
-            <User className="w-3.5 h-3.5" />
-            個人版
+            <Users className="w-3.5 h-3.5" />
+            <span>社工版</span>
+            <ArrowLeftRight className="w-3 h-3 opacity-60" />
           </Link>
         </div>
       </header>

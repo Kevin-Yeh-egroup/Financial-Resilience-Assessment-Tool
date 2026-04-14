@@ -1,4 +1,4 @@
-import { Shield, Users } from 'lucide-react';
+import { Shield, User, ArrowLeftRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function PersonalLayout({ children }: { children: React.ReactNode }) {
@@ -14,10 +14,12 @@ export default function PersonalLayout({ children }: { children: React.ReactNode
           </Link>
           <Link
             href="/social-worker"
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground border border-border rounded-full px-3 py-1.5 transition-colors hover:bg-muted/50"
+            className="inline-flex items-center gap-1.5 text-sm border rounded-full px-3 py-1.5 transition-colors bg-primary/8 text-primary border-primary/20 hover:bg-primary/15"
+            title="切換至社工版"
           >
-            <Users className="w-3.5 h-3.5" />
-            社工版
+            <User className="w-3.5 h-3.5" />
+            <span>個人版</span>
+            <ArrowLeftRight className="w-3 h-3 opacity-60" />
           </Link>
         </div>
       </header>

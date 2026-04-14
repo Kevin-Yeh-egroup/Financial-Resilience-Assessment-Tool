@@ -16,7 +16,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { ChevronLeft, Pencil, Save, X } from 'lucide-react';
+import { ChevronLeft, Pencil, Save, X, History, ChevronDown, ChevronUp } from 'lucide-react';
 import Link from 'next/link';
 
 // ────────────────────────────────────────────
@@ -81,6 +81,64 @@ function getLevelBadge(level: string) {
     >
       {info.label}
     </Badge>
+  );
+}
+
+// ────────────────────────────────────────────
+// Edit History Section
+// ────────────────────────────────────────────
+
+function EditHistorySection({ assessment }: { assessment: AssessmentResult }) {
+  const [open, setOpen] = useState(false);
+  const history = assessment.editHistory;
+  if (!history || history.length === 0) return null;
+
+  return (
+    <div className="border rounded-lg overflow-hidden">
+      <button
+        type="button"
+        className="w-full bg-muted px-4 py-2.5 flex items-center justify-between text-sm font-semibold hover:bg-muted/80 transition-colors"
+        onClick={() => setOpen((v) => !v)}
+      >
+        <span className="flex items-center gap-2">
+          <History className="w-4 h-4" />
+          編輯歷史紀錄（共 {history.length} 筆）
+        </span>
+        {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+      </button>
+      {open && (
+        <div className="divide-y">
+          {[...history].reverse().map((record, i) => {
+            const scoreDiff = assessment.totalScore - record.previousTotalScore;
+            return (
+              <div key={i} className="px-4 py-3 text-sm">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-muted-foreground">
+                    {new Date(record.editedAt).toLocaleString('zh-TW')}
+                  </span>
+                  <span className={`font-medium ${scoreDiff > 0 ? 'text-success' : scoreDiff < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                    {record.previousTotalScore} 分 → {assessment.totalScore} 分
+                    {scoreDiff !== 0 && ` （${scoreDiff > 0 ? '+' : ''}${scoreDiff}）`}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
+                  {(Object.keys(DIMENSION_LABELS) as Dimension[]).map((dim) => {
+                    const prev = record.previousDimensionScores[dim];
+                    const cur = assessment.dimensionScores[dim];
+                    if (prev === cur) return null;
+                    return (
+                      <span key={dim}>
+                        {dim}.{DIMENSION_LABELS[dim]}：{prev} → {cur}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -608,6 +666,9 @@ export default function AssessmentDetailPage({
             </div>
           );
         })()}
+
+        {/* Edit history */}
+        {!isEditing && <EditHistorySection assessment={assessment} />}
       </div>
     </div>
   );

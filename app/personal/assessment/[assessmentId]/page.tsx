@@ -5,45 +5,18 @@ import { usePersonalStore } from '@/lib/personal-store';
 import {
   DIMENSION_LABELS,
   RESILIENCE_LEVELS,
-  INTERVENTION_OPTIONS,
   type Dimension,
   type AssessmentResult,
 } from '@/lib/assessment-types';
 import { MAX_DIMENSION_SCORES, ASSESSMENT_QUESTIONS } from '@/lib/assessment-questions';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { ChevronLeft, Pencil, Save, X } from 'lucide-react';
+import { ChevronLeft, Pencil, Save, X, History, ChevronDown, ChevronUp } from 'lucide-react';
 import Link from 'next/link';
 
 // ── Constants ────────────────────────────────────────────────────────────────
-
-const DIMENSION_ROLES: Record<string, string> = {
-  A: '社工詢問個案', B: '社工詢問個案', C: '社工詢問個案',
-  D: '社工與個案共同確認', E: '社工詢問個案', F: '個案自填',
-};
-
-const QUESTION_SHORT_TITLES: Record<string, string> = {
-  A1: '月收入', A2: '收入穩定性', A3: '儲蓄狀況', A4: '債務狀況', A5: '其他資產',
-  B1: '應急籌款能力', B2: '主要籌款管道', B3: '保險覆蓋',
-  C1: '銀行帳戶', C2: '銀行服務使用熟練度', C3: '金融服務可近性',
-  D1: '預算規劃習慣', D2: '記帳習慣', D3: '儲蓄習慣', D4: '金融知識程度',
-  E1: '親友支持強度', E2: '社區連結程度', E3: '社會資源了解度',
-  F1: '財務壓力感受', F2: '未來財務信心',
-};
-
-function getQuestionNote(questionId: string, value: number): string | null {
-  if (questionId === 'A4' && value <= 1) return '如有債務→建議啟動 家庭債務風險評估標準 深入評估';
-  if (questionId === 'B1' && value <= 1) return '如困難→建議啟動 家庭緊急資金充足度評估標準 深入評估';
-  if (questionId === 'C1' && value === 0) return '無→優先協助開戶';
-  if (questionId === 'D2' && value === 0) return '如無→建議評估後啟動家庭財務管理行為評估檢核表';
-  if (questionId === 'D4') return '社工依對話過程綜合判斷';
-  if (questionId === 'F1' && value === 0) return '如高壓力→建議施測財務壓力與掌控感評估量表';
-  return null;
-}
 
 function getDetailedLevel(score: number): string {
   if (score >= 75) return '財務韌性良好（75–100）';
@@ -78,26 +51,58 @@ function getLevelBadge(level: string) {
   );
 }
 
-// ── Amount field ─────────────────────────────────────────────────────────────
+// ── Edit History Section ──────────────────────────────────────────────────────
 
-function AmountField({ questionId, initialValue, onSave }: {
-  questionId: string;
-  initialValue: string;
-  onSave: (value: string) => void;
-}) {
-  const [value, setValue] = useState(initialValue);
+function EditHistorySection({ assessment }: { assessment: AssessmentResult }) {
+  const [open, setOpen] = useState(false);
+  const history = assessment.editHistory;
+  if (!history || history.length === 0) return null;
+
   return (
-    <div className="mt-2 flex items-center gap-1.5 text-xs">
-      <span className="text-muted-foreground shrink-0">實際金額：NT$</span>
-      <Input
-        type="number" min={0}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onBlur={() => onSave(value)}
-        placeholder="請填寫"
-        className="h-6 w-28 text-xs px-1.5 py-0"
-      />
-      <span className="text-muted-foreground shrink-0">元</span>
+    <div className="border rounded-lg overflow-hidden">
+      <button
+        type="button"
+        className="w-full bg-muted px-4 py-2.5 flex items-center justify-between text-sm font-semibold hover:bg-muted/80 transition-colors"
+        onClick={() => setOpen((v) => !v)}
+      >
+        <span className="flex items-center gap-2">
+          <History className="w-4 h-4" />
+          編輯歷史紀錄（共 {history.length} 筆）
+        </span>
+        {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+      </button>
+      {open && (
+        <div className="divide-y">
+          {[...history].reverse().map((record, i) => {
+            const scoreDiff = assessment.totalScore - record.previousTotalScore;
+            return (
+              <div key={i} className="px-4 py-3 text-sm">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-muted-foreground">
+                    {new Date(record.editedAt).toLocaleString('zh-TW')}
+                  </span>
+                  <span className={`font-medium ${scoreDiff > 0 ? 'text-success' : scoreDiff < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                    {record.previousTotalScore} 分 → {assessment.totalScore} 分
+                    {scoreDiff !== 0 && ` （${scoreDiff > 0 ? '+' : ''}${scoreDiff}）`}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
+                  {(Object.keys(DIMENSION_LABELS) as Dimension[]).map((dim) => {
+                    const prev = record.previousDimensionScores[dim];
+                    const cur = assessment.dimensionScores[dim];
+                    if (prev === cur) return null;
+                    return (
+                      <span key={dim}>
+                        {dim}.{DIMENSION_LABELS[dim]}：{prev} → {cur}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -110,13 +115,7 @@ export default function PersonalAssessmentDetailPage({
   params: Promise<{ assessmentId: string }>;
 }) {
   const { assessmentId } = use(params);
-  const {
-    profile,
-    assessments,
-    updateAssessment,
-    updateAssessmentFieldNotes,
-    updateAssessmentInterventionPriorities,
-  } = usePersonalStore();
+  const { profile, assessments, updateAssessment } = usePersonalStore();
 
   const assessmentIndex = assessments.findIndex((a) => a.id === assessmentId);
   const assessment: AssessmentResult | undefined = assessments[assessmentIndex];
@@ -142,34 +141,6 @@ export default function PersonalAssessmentDetailPage({
     setIsEditing(false);
     setEditAnswers({});
   }, [assessmentId, editAnswers, updateAssessment]);
-
-  const saveFieldNote = useCallback((questionId: string, value: string) => {
-    updateAssessmentFieldNotes(assessmentId, { [questionId]: value });
-  }, [assessmentId, updateAssessmentFieldNotes]);
-
-  const toggleInterventionOption = useCallback((opt: string) => {
-    if (!assessment) return;
-    const current = assessment.interventionPriorities ?? { selected: [], otherChecked: false, other: '' };
-    const next = current.selected.includes(opt)
-      ? current.selected.filter((s) => s !== opt)
-      : [...current.selected, opt];
-    updateAssessmentInterventionPriorities(assessmentId, { ...current, selected: next });
-  }, [assessmentId, assessment, updateAssessmentInterventionPriorities]);
-
-  const toggleInterventionOther = useCallback(() => {
-    if (!assessment) return;
-    const current = assessment.interventionPriorities ?? { selected: [], otherChecked: false, other: '' };
-    updateAssessmentInterventionPriorities(assessmentId, { ...current, otherChecked: !current.otherChecked });
-  }, [assessmentId, assessment, updateAssessmentInterventionPriorities]);
-
-  const setInterventionOtherText = useCallback((val: string) => {
-    if (!assessment) return;
-    const current = assessment.interventionPriorities ?? { selected: [], otherChecked: false, other: '' };
-    updateAssessmentInterventionPriorities(assessmentId, {
-      ...current, other: val,
-      otherChecked: val.trim().length > 0 ? true : current.otherChecked,
-    });
-  }, [assessmentId, assessment, updateAssessmentInterventionPriorities]);
 
   if (!assessment) {
     return (
@@ -216,7 +187,6 @@ export default function PersonalAssessmentDetailPage({
             </span>
           </div>
         </div>
-
         <div className="flex items-center gap-2 shrink-0">
           {isEditing ? (
             <>
@@ -255,28 +225,24 @@ export default function PersonalAssessmentDetailPage({
                 <span className="font-semibold text-sm">
                   ▌ {dim}. {DIMENSION_LABELS[dim]}（滿分 {maxScore} 分）
                 </span>
-                <span className="text-xs text-muted-foreground">【{DIMENSION_ROLES[dim]}】</span>
               </div>
 
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr className="bg-muted/40 border-b">
-                    <th className="text-left px-3 py-2 font-medium w-[28%] border-r">評估題目</th>
+                    <th className="text-left px-3 py-2 font-medium w-[30%] border-r">評估題目</th>
                     <th className="text-left px-3 py-2 font-medium border-r">選項（請勾選最符合的一項）</th>
-                    <th className="text-left px-3 py-2 font-medium w-[22%]">得分 / 備註</th>
+                    <th className="text-left px-3 py-2 font-medium w-[18%]">得分</th>
                   </tr>
                 </thead>
                 <tbody>
                   {questions.map((question, qi) => {
                     const selectedValue = displayAnswers[question.id];
-                    const note = selectedValue !== undefined ? getQuestionNote(question.id, selectedValue) : null;
-                    const showAmountField = question.id === 'A1' || question.id === 'A3';
-                    const savedAmount = assessment.fieldNotes?.[question.id] ?? '';
 
                     return (
                       <tr key={question.id} className={qi % 2 === 0 ? 'bg-background' : 'bg-muted/20'}>
                         <td className="px-3 py-2.5 align-top border-r border-border/50">
-                          <div className="font-semibold">{question.id}　{QUESTION_SHORT_TITLES[question.id]}</div>
+                          <div className="font-semibold leading-relaxed">{question.text}</div>
                           <div className="text-xs text-muted-foreground mt-0.5">（滿分 {question.options[0].value} 分）</div>
                         </td>
                         <td className="px-3 py-2.5 align-top border-r border-border/50">
@@ -316,20 +282,8 @@ export default function PersonalAssessmentDetailPage({
                         </td>
                         <td className="px-3 py-2.5 align-top">
                           <div className="font-medium">
-                            {question.id} 得分：{selectedValue !== undefined ? selectedValue : '—'} 分
+                            得分：{selectedValue !== undefined ? selectedValue : '—'} 分
                           </div>
-                          {showAmountField && (
-                            <AmountField
-                              questionId={question.id}
-                              initialValue={savedAmount}
-                              onSave={(val) => saveFieldNote(question.id, val)}
-                            />
-                          )}
-                          {note && (
-                            <div className="text-xs text-amber-600 dark:text-amber-400 mt-1.5 leading-snug">
-                              ⚠ {note}
-                            </div>
-                          )}
                         </td>
                       </tr>
                     );
@@ -415,40 +369,8 @@ export default function PersonalAssessmentDetailPage({
           </div>
         )}
 
-        {/* Intervention priorities */}
-        {!isEditing && (() => {
-          const priorities = assessment.interventionPriorities ?? { selected: [], otherChecked: false, other: '' };
-          return (
-            <div className="border rounded-lg overflow-hidden">
-              <div className="bg-muted px-4 py-2.5 font-semibold text-sm">優先介入面向識別</div>
-              <div className="px-4 py-4 space-y-3">
-                <div className="flex flex-wrap gap-x-5 gap-y-2.5">
-                  {INTERVENTION_OPTIONS.map((opt) => (
-                    <div key={opt} className="flex items-center gap-2">
-                      <Checkbox
-                        id={`intervention-${assessmentId}-${opt}`}
-                        checked={priorities.selected.includes(opt)}
-                        onCheckedChange={() => toggleInterventionOption(opt)}
-                      />
-                      <Label htmlFor={`intervention-${assessmentId}-${opt}`} className="text-sm font-normal cursor-pointer">
-                        {opt}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex items-center gap-2 pt-1">
-                  <Checkbox
-                    id={`intervention-${assessmentId}-other`}
-                    checked={priorities.otherChecked}
-                    onCheckedChange={toggleInterventionOther}
-                  />
-                  <Label htmlFor={`intervention-${assessmentId}-other`} className="text-sm font-normal shrink-0">其他：</Label>
-                  <Input value={priorities.other} onChange={(e) => setInterventionOtherText(e.target.value)} placeholder="請填寫" className="h-8 text-sm" />
-                </div>
-              </div>
-            </div>
-          );
-        })()}
+        {/* Edit history */}
+        {!isEditing && <EditHistorySection assessment={assessment} />}
       </div>
     </div>
   );

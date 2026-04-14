@@ -257,6 +257,15 @@ export const useSocialWorkerStore = create<SocialWorkerState>()(
                           dimensionScores,
                           dimensionPercentages,
                           level: calculateResilienceLevel(totalScore),
+                          editHistory: [
+                            ...(a.editHistory ?? []),
+                            {
+                              editedAt: new Date().toISOString(),
+                              previousAnswers: a.answers,
+                              previousTotalScore: a.totalScore,
+                              previousDimensionScores: a.dimensionScores,
+                            },
+                          ],
                         }
                       : a
                   ),

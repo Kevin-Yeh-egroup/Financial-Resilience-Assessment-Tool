@@ -29,6 +29,13 @@ export interface Question {
   }[];
 }
 
+export interface AssessmentEditRecord {
+  editedAt: string;
+  previousAnswers: Record<string, number>;
+  previousTotalScore: number;
+  previousDimensionScores: Record<Dimension, number>;
+}
+
 export interface AssessmentResult {
   id: string;
   date: string;
@@ -44,6 +51,7 @@ export interface AssessmentResult {
     otherChecked: boolean;
     other: string;
   };
+  editHistory?: AssessmentEditRecord[];
 }
 
 export type ResilienceLevel = 'stable' | 'needsAdjustment' | 'atRisk';

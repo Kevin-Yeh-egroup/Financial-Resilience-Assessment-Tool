@@ -29,6 +29,29 @@ import {
   ClipboardList, ExternalLink, Trash2, TrendingUp,
   ArrowUp, ArrowDown, Minus, Pencil, Save, X,
 } from 'lucide-react';
+
+const NEXT_STEP_TOOLS = [
+  {
+    emoji: '🤖',
+    label: '問問 AI',
+    href: 'https://www.familyfinhealth.com/social-worker/ask-ivy',
+  },
+  {
+    emoji: '💬',
+    label: '線上財務諮詢',
+    href: 'https://www.familyfinhealth.com/social-worker/online-consultation',
+  },
+  {
+    emoji: '📒',
+    label: '財務生活記帳助理',
+    href: 'https://www.familyfinhealth.com/toolbox/financial-calculator/basic-accounting-preview',
+  },
+  {
+    emoji: '📚',
+    label: '專業知識庫',
+    href: 'https://www.familyfinhealth.com/knowledge-base',
+  },
+];
 import Link from 'next/link';
 
 const currentYear = new Date().getFullYear();
@@ -114,7 +137,7 @@ export default function PersonalPage() {
           <Link href="/personal/assess">
             <Button size="lg">
               <ClipboardList className="w-4 h-4 mr-2" />
-              開始評估
+              快速開始評估
             </Button>
           </Link>
         </div>
@@ -232,6 +255,30 @@ export default function PersonalPage() {
               </CardHeader>
               <CardContent>
                 <ResilienceRadarChart data={latestAssessment.dimensionPercentages} />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Next Steps Tools */}
+          {latestAssessment && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">後續你可以</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {NEXT_STEP_TOOLS.map((tool) => (
+                  <a
+                    key={tool.href}
+                    href={tool.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl border border-border bg-card hover:bg-muted/50 transition-colors"
+                  >
+                    <span className="text-xl flex-shrink-0">{tool.emoji}</span>
+                    <span className="flex-1 text-sm font-medium text-foreground">{tool.label}</span>
+                    <ExternalLink className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
+                  </a>
+                ))}
               </CardContent>
             </Card>
           )}

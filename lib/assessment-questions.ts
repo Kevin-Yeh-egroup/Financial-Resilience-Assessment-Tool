@@ -29,7 +29,7 @@ export const ASSESSMENT_QUESTIONS: Question[] = [
   {
     id: 'A3',
     dimension: 'A',
-    text: '您目前的儲蓄，大約可以支應幾個月的生活費？',
+    text: '您目前的儲蓄，大約可以支應幾個月的生活費？（以每月必要開銷，如房租、水電、伙食、交通、照顧/教育費估算）',
     options: [
       { value: 5, label: '3 個月以上' },
       { value: 3, label: '1 至 3 個月' },
@@ -40,18 +40,18 @@ export const ASSESSMENT_QUESTIONS: Question[] = [
   {
     id: 'A4',
     dimension: 'A',
-    text: '您目前的債務狀況是？',
+    text: '您目前的債務狀況是？（請依目前最常見或金額最高的借款型態選擇）',
     options: [
       { value: 5, label: '無債務' },
-      { value: 3, label: '健康債務' },
-      { value: 1, label: '警戒債務' },
-      { value: 0, label: '危險債務' },
+      { value: 3, label: '健康債務（親友周轉、信用卡繳最低應繳、銀行信貸、預支薪水）' },
+      { value: 1, label: '警戒債務（帳單延遲、銀行債務無法繳納、融資借款、先買後付、二胎借款）' },
+      { value: 0, label: '危險債務（融資貸款無法繳納、當鋪、小額借款）' },
     ],
   },
   {
     id: 'A5',
     dimension: 'A',
-    text: '除了存款，您家庭還有哪些資產？',
+    text: '除了存款，您家庭還有哪些資產？（例如：自有房屋/土地、汽機車、可變現投資〈股票/基金/債券〉、黃金、可出租資產、營生工具設備等）',
     options: [
       { value: 5, label: '有多項資產' },
       { value: 3, label: '有部分資產' },
@@ -86,10 +86,10 @@ export const ASSESSMENT_QUESTIONS: Question[] = [
   {
     id: 'B3',
     dimension: 'B',
-    text: '您家庭目前有哪些保險保障？',
+    text: '您家庭目前有哪些保險保障？（請包含家中主要經濟來源者是否有保險）',
     options: [
-      { value: 5, label: '有完整保障' },
-      { value: 3, label: '有基本保障' },
+      { value: 5, label: '有完整保障（健保＋醫療/意外/壽險等，保障相對充足）' },
+      { value: 3, label: '有基本保障（健保＋部分保險，但保障額度或項目有限）' },
       { value: 1, label: '只有全民健保' },
       { value: 0, label: '沒有任何保險' },
     ],
