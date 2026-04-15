@@ -78,8 +78,8 @@ export const ASSESSMENT_QUESTIONS: Question[] = [
     text: '如果需要緊急籌款，您最主要的方式是？',
     options: [
       { value: 5, label: '動用自己的儲蓄' },
-      { value: 3, label: '請親友借助或借款' },
-      { value: 2, label: '向銀行或信用合作社貸款' },
+      { value: 3, label: '請親友借助或銀行借款' },
+      { value: 2, label: '應付帳款延遲付款、使用先買後付或二胎借款' },
       { value: 0, label: '借地下錢莊、當鋪等高成本管道' },
     ],
   },

@@ -261,7 +261,7 @@ export default function PersonalAssessmentDetailPage({
                                 >
                                   <RadioGroupItem value={opt.value.toString()} id={`edit-${question.id}-${opt.value}`} />
                                   <Label htmlFor={`edit-${question.id}-${opt.value}`} className="cursor-pointer font-normal flex-1">
-                                    {opt.label}（{opt.value} 分）
+                                    {opt.label}
                                   </Label>
                                 </div>
                               ))}
@@ -273,7 +273,7 @@ export default function PersonalAssessmentDetailPage({
                                 return (
                                   <div key={opt.value} className={`flex items-start gap-2 ${isSelected ? 'font-semibold text-primary' : 'text-muted-foreground'}`}>
                                     <span className="mt-px shrink-0 text-base leading-none">{isSelected ? '☑' : '☐'}</span>
-                                    <span>{opt.label}（{opt.value} 分）</span>
+                                    <span>{opt.label}</span>
                                   </div>
                                 );
                               })}
